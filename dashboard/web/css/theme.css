@@ -1,0 +1,164 @@
+/* ==========================================================================
+   YesTechie Labs Style 0.4.0 — chapter 14 · Themes
+   Labs Light (= the kit tokens) + Labs Dark. Load this file LAST.
+
+     <html data-theme="light|dark" data-theme-pref="light|dark|system">
+   js/theme.js resolves "system" through prefers-color-scheme. [data-theme]
+   also works on any container, so a dark panel can sit inside a light page.
+
+   THM-07 literals that match a token in both themes now live on the owning
+   rule (form control, chart band, bullet tracks, scrim, scanners). What
+   remains here is the token blocks plus dark-only fixes whose light value
+   is intentionally different (password fill, drop shadows, lamp glow).
+   ========================================================================== */
+
+/* THM-05 · Labs Light: explicit copy of the live colour tokens */
+[data-theme="light"] {
+  color-scheme: light;
+  --bg-color: #f4f5f4;
+  --grid-color: #e2e6e3;
+  --panel-bg: rgba(238, 242, 239, 0.85);
+  --panel-bg-solid: #eff2ef;
+  --panel-bg-hover: rgba(220, 226, 222, 0.95);
+  --border-main: #a3b1a6;
+  --border-light: #c2ccc4;
+  --border-dashed: #b4bfb7;
+  --text-dark: #374151;
+  --text-muted: #6b7280;
+  --accent-blue: #6388b0;
+  --accent-blue-trans: rgba(99, 136, 176, 0.2);
+  --accent-red: #db6554;
+  --accent-red-trans: rgba(219, 101, 84, 0.2);
+  --accent-green: #7a9f82;
+  --accent-green-trans: rgba(122, 159, 130, 0.2);
+  --accent-yellow: #c69c5e;
+  --accent-yellow-trans: rgba(198, 156, 94, 0.2);
+  --surface-pane: rgba(255, 255, 255, 0.4);
+  --surface-input: rgba(0, 0, 0, 0.02);
+  --surface-input-focus: #ffffff;
+  --surface-well: rgba(0, 0, 0, 0.03);
+  --surface-submit: #d4dde5;
+  --scrim: rgba(0, 0, 0, 0.3);
+  --ink-on-accent: #ffffff;
+  --accent-blue-faint: rgba(99, 136, 176, 0.12);
+  --band-1: rgba(0, 0, 0, 0.1);
+  --band-2: rgba(0, 0, 0, 0.06);
+  --band-3: rgba(0, 0, 0, 0.03);
+  --accent-blue-ink: #4b6f95;
+  --accent-red-ink: #c43d29;
+  --accent-green-ink: #54745b;
+  --accent-yellow-ink: #8a6631;
+  --text-muted-ink: #666d7a;
+  --theme-meta: #eff2ef;
+  --hatch: repeating-linear-gradient( -45deg, transparent 0 4px, rgba(163, 177, 166, 0.35) 4px 5px );
+  --subgrid: linear-gradient(rgba(226, 230, 227, 0.6) 1px, transparent 1px), linear-gradient(90deg, rgba(226, 230, 227, 0.6) 1px, transparent 1px);
+}
+
+/* THM-05 · Labs Dark: graphite-sage night mode, same identity */
+[data-theme="dark"] {
+  color-scheme: dark;
+  --bg-color: #141715;
+  --grid-color: #1e2320;
+  --panel-bg: rgba(27, 32, 29, 0.88);
+  --panel-bg-solid: #1b201d;
+  --panel-bg-hover: rgba(42, 49, 45, 0.95);
+  --border-main: #606f64;
+  --border-light: #36403a;
+  --border-dashed: #4a564e;
+  --text-dark: #d9dfda;
+  --text-muted: #939d96;
+  --accent-blue: #88a7c8;
+  --accent-blue-trans: rgba(136, 167, 200, 0.18);
+  --accent-red: #e3806f;
+  --accent-red-trans: rgba(227, 128, 111, 0.18);
+  --accent-green: #92b89a;
+  --accent-green-trans: rgba(146, 184, 154, 0.18);
+  --accent-yellow: #d6b27a;
+  --accent-yellow-trans: rgba(214, 178, 122, 0.18);
+  --surface-pane: rgba(255, 255, 255, 0.025);
+  --surface-input: rgba(255, 255, 255, 0.035);
+  --surface-input-focus: #222924;
+  --surface-well: rgba(0, 0, 0, 0.22);
+  --surface-submit: #243039;
+  --scrim: rgba(0, 0, 0, 0.6);
+  --ink-on-accent: #121513;
+  --accent-blue-faint: rgba(136, 167, 200, 0.14);
+  --band-1: rgba(255, 255, 255, 0.14);
+  --band-2: rgba(255, 255, 255, 0.08);
+  --band-3: rgba(255, 255, 255, 0.04);
+  --accent-blue-ink: #88a7c8;
+  --accent-red-ink: #e3806f;
+  --accent-green-ink: #92b89a;
+  --accent-yellow-ink: #d6b27a;
+  --text-muted-ink: #939d96;
+  --theme-meta: #1b201d;
+  --hatch: repeating-linear-gradient( -45deg, transparent 0 4px, rgba(96, 111, 100, 0.45) 4px 5px );
+  --subgrid: linear-gradient(rgba(44, 52, 47, 0.8) 1px, transparent 1px), linear-gradient(90deg, rgba(44, 52, 47, 0.8) 1px, transparent 1px);
+}
+
+/* Aliases resolve where they are declared, so a nested scope re-declares them. */
+[data-theme="light"],
+[data-theme="dark"] {
+  --lamp-idle: var(--border-main);
+  --focus-ring: 1px dashed var(--accent-blue);
+  --bg: var(--bg-color);
+  --grid: var(--grid-color);
+  --panel: var(--panel-bg);
+  --panel-hover: var(--panel-bg-hover);
+  --panel-border: var(--border-main);
+  --border: var(--border-main);
+  --border-lt: var(--border-light);
+  --border-dash: var(--border-dashed);
+  --text: var(--text-dark);
+  --text-main: var(--text-dark);
+  --muted: var(--text-muted);
+  --blue: var(--accent-blue);
+  --blue-t: var(--accent-blue-trans);
+  --red: var(--accent-red);
+  --red-t: var(--accent-red-trans);
+  --green: var(--accent-green);
+  --green-t: var(--accent-green-trans);
+  --yellow: var(--accent-yellow);
+  --yellow-t: var(--accent-yellow-trans);
+}
+
+/* THM-05 · a non-html element with [data-theme] paints its own canvas */
+[data-theme="light"]:not(html),
+[data-theme="dark"]:not(html) {
+  background-color: var(--bg-color);
+  background-image:
+    linear-gradient(var(--grid-color) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+  background-size: var(--grid-size) var(--grid-size);
+  color: var(--text-dark);
+}
+
+/* ------------------------------------------------------------------------
+   Dark-only fixes whose light value is intentionally not the token.
+   ------------------------------------------------------------------------ */
+
+/* password field keeps its sage fill in Light; Dark uses the input token */
+[data-theme="dark"] input[type="password"].form-control {
+  background: var(--surface-input);
+  border-color: var(--border-main);
+}
+
+/* light drop shadows read as smudges on dark */
+[data-theme="dark"] .login-container { box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35); }
+[data-theme="dark"] .modal,
+[data-theme="dark"] .palette { box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.35); }
+
+/* lamps: tighter glow so they do not bloom on dark */
+[data-theme="dark"] .dot-green,
+[data-theme="dark"] .lamp.ok { box-shadow: 0 0 3px var(--accent-green); }
+[data-theme="dark"] .dot-red,
+[data-theme="dark"] .lamp.crit { box-shadow: 0 0 3px var(--accent-red); }
+[data-theme="dark"] .dot-yellow,
+[data-theme="dark"] .lamp.warn { box-shadow: 0 0 3px var(--accent-yellow); }
+[data-theme="dark"] .dot-blue,
+[data-theme="dark"] .lamp.info { box-shadow: 0 0 3px var(--accent-blue); }
+
+/* THM-09 · no animated flash while switching */
+html.theme-switching *,
+html.theme-switching *::before,
+html.theme-switching *::after { transition: none !important; }

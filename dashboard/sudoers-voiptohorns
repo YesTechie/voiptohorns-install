@@ -1,0 +1,3 @@
+# Installed by install.sh as /etc/sudoers.d/voiptohorns (mode 440).
+# Lets the dashboard restart the SIP bridge after a zone or Config save. Nothing else.
+voiptohorns ALL=(root) NOPASSWD: /usr/bin/systemctl restart voiptohorns-bridge.service

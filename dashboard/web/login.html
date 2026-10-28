@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en" data-theme-default="system">
+<head>
+  <script>/* THM-04 theme boot: runs before CSS so the first paint is already themed */(function(d){try{var p=localStorage.getItem("yt-theme")||d.dataset.themeDefault||"system";var t=p==="system"?(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"):p;d.dataset.theme=t==="dark"?"dark":"light";d.dataset.themePref=p}catch(e){d.dataset.theme="light"}})(document.documentElement);</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#eff2ef">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>YesTechie LABS — Secure Login</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/tokens.css">
+  <link rel="stylesheet" href="/static/css/layout.css">
+  <link rel="stylesheet" href="/static/css/components.css">
+  <link rel="stylesheet" href="/static/css/theme.css">
+</head>
+<body class="page-login">
+    <script>
+    (function(){
+      if(window.isSecureContext) return;
+      var h=location.hostname;
+      if(!h || h==='localhost' || h==='127.0.0.1') return;
+      if(location.port && location.port!=='443') return;
+      location.replace('https://'+h+'/');
+    })();
+    </script>
+
+    <div class="ambient-scanner-h"></div>
+    <div class="ambient-scanner-v"></div>
+
+    <div class="login-container">
+        <div class="panel-corner"></div>
+
+        <div class="header-block">
+            <h1 class="main-title" id="title" data-value="YesTechie LABS">YesTechie LABS</h1>
+            <p class="subtitle" id="subtitle"></p>
+        </div>
+
+        <div class="error-box" id="error"></div>
+
+        <div class="form-group">
+            <label class="form-label" for="username">Username</label>
+            <input type="text" class="form-control" id="username" autocomplete="username" autofocus>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="password">Password</label>
+            <input type="password" class="form-control" id="password" autocomplete="current-password">
+        </div>
+
+        <button class="btn-submit" id="submit-btn" type="button">
+            <span class="btn-text">Sign In</span>
+        </button>
+        <div class="login-foot">
+            <button type="button" class="theme-cycle" data-theme-cycle></button>
+            <p class="version" id="appVersion"></p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            fetch('/api/version').then(r=>r.json()).then(d=>{
+                const el=document.getElementById('appVersion');
+                if(el && d.version) el.textContent='v'+d.version;
+            }).catch(()=>{});
+
+            /* --- 1. TITLE DECODING SEQUENCE --- */
+            const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&*";
+            const titleElement = document.getElementById("title");
+            const targetText = titleElement.dataset.value;
+            let iterations = 0;
+
+            const interval = setInterval(() => {
+                titleElement.innerText = targetText.split("")
+                    .map((letter, index) => {
+                        if(index < iterations) { return targetText[index]; }
+                        return letters[Math.floor(Math.random() * 42)];
+                    })
+                    .join("");
+
+                if(iterations >= targetText.length) {
+                    clearInterval(interval);
+                    typeSubtitle();
+                }
+                iterations += 1 / 3;
+            }, 40);
+
+            /* --- 2. SUBTITLE TYPEWRITER EFFECT --- */
+            function typeSubtitle() {
+                const subtitleText = "VoIP PA System";
+                const subtitleElement = document.getElementById("subtitle");
+                let i = 0;
+
+                const typeInterval = setInterval(() => {
+                    subtitleElement.innerText = subtitleText.substring(0, i) + "_";
+                    i++;
+                    if (i > subtitleText.length) {
+                        clearInterval(typeInterval);
+                        subtitleElement.innerText = subtitleText;
+                    }
+                }, 50);
+            }
+
+            /* --- 3. REAL AUTHENTICATION --- */
+            const submitBtn = document.getElementById("submit-btn");
+            const btnText = submitBtn.querySelector(".btn-text");
+            const errorBox = document.getElementById("error");
+
+            async function doLogin() {
+                errorBox.style.display = "none";
+                submitBtn.classList.remove("failed");
+                submitBtn.classList.add("processing");
+                btnText.innerText = "AUTHENTICATING...";
+
+                try {
+                    const r = await fetch('/login', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({
+                            username: document.getElementById('username').value,
+                            password: document.getElementById('password').value
+                        })
+                    });
+                    const d = await r.json();
+
+                    if (d.ok) {
+                        submitBtn.classList.remove("processing");
+                        submitBtn.classList.add("success");
+                        btnText.innerText = "ACCESS GRANTED";
+                        setTimeout(() => { window.location.href = '/'; }, 800);
+                    } else {
+                        submitBtn.classList.remove("processing");
+                        submitBtn.classList.add("failed");
+                        btnText.innerText = "ACCESS DENIED";
+                        errorBox.textContent = d.error || "Authentication failed";
+                        errorBox.style.display = "block";
+                        setTimeout(() => {
+                            submitBtn.classList.remove("failed");
+                            btnText.innerText = "SIGN IN";
+                        }, 1500);
+                    }
+                } catch(e) {
+                    submitBtn.classList.remove("processing");
+                    submitBtn.classList.add("failed");
+                    btnText.innerText = "CONNECTION ERROR";
+                    errorBox.textContent = "Unable to reach server";
+                    errorBox.style.display = "block";
+                    setTimeout(() => {
+                        submitBtn.classList.remove("failed");
+                        btnText.innerText = "SIGN IN";
+                    }, 1500);
+                }
+            }
+
+            submitBtn.addEventListener("click", (e) => {
+                e.preventDefault();
+                doLogin();
+            });
+
+            document.getElementById('password').addEventListener('keydown', e => {
+                if(e.key === 'Enter') doLogin();
+            });
+            document.getElementById('username').addEventListener('keydown', e => {
+                if(e.key === 'Enter') document.getElementById('password').focus();
+            });
+        });
+    </script>
+    <script src="/static/js/theme.js"></script>
+</body>
+</html>

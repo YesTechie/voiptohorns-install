@@ -1,0 +1,412 @@
+/* ==========================================================================
+   YesTechie Labs Style — layout
+   Login canvas + left-sidebar appliance shell.
+
+   Extracted from the dashboard login.html / index.html and kiosk style.css.
+   ========================================================================== */
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background-color: var(--bg-color);
+  background-image:
+    linear-gradient(var(--grid-color) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+  background-size: var(--grid-size) var(--grid-size);
+  color: var(--text-dark);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  line-height: 1.5;
+  min-height: 100vh;
+}
+
+a {
+  color: var(--accent-blue-ink);
+  text-decoration: none;
+  font-weight: bold;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* --------------------------------------------------------------------------
+   Login page
+   -------------------------------------------------------------------------- */
+
+body.page-login {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  position: relative;
+}
+
+.ambient-scanner-h {
+  position: absolute;
+  width: 100vw;
+  height: 1px;
+  background: color-mix(in srgb, var(--accent-blue) 30%, transparent);
+  top: 0;
+  left: 0;
+  z-index: 1;
+  animation: scan-v 8s linear infinite;
+  box-shadow: 0 0 10px color-mix(in srgb, var(--accent-blue) 50%, transparent);
+}
+
+.ambient-scanner-v {
+  position: absolute;
+  width: 1px;
+  height: 100vh;
+  background: color-mix(in srgb, var(--accent-blue) 20%, transparent);
+  top: 0;
+  left: 0;
+  z-index: 1;
+  animation: scan-h 12s linear infinite;
+}
+
+@keyframes scan-v {
+  0% { top: -10%; }
+  100% { top: 110%; }
+}
+
+@keyframes scan-h {
+  0% { left: -10%; }
+  100% { left: 110%; }
+}
+
+.login-container {
+  width: 380px;
+  background: var(--panel-bg-solid);
+  border: 1px solid var(--border-main);
+  padding: 40px 40px 50px;
+  position: relative;
+  z-index: 10;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+}
+
+.panel-corner {
+  position: absolute;
+  top: -1px;
+  left: -1px;
+  width: 8px;
+  height: 8px;
+  background: var(--text-muted);
+}
+
+.header-block {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.main-title {
+  font-size: 24px;
+  font-weight: bold;
+  letter-spacing: 2px;
+  margin-bottom: 8px;
+  color: var(--text-dark);
+  height: 36px;
+}
+
+.subtitle {
+  color: var(--text-muted);
+  font-size: 10px;
+  letter-spacing: 1px;
+  border-bottom: 1px solid var(--border-main);
+  padding-bottom: 15px;
+  min-height: 27px;
+  text-transform: none;
+}
+
+.login-container .form-group {
+  margin-bottom: 20px;
+}
+
+.form-label {
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+  display: block;
+}
+
+.version {
+  text-align: center;
+  margin-top: 22px;
+  color: var(--text-muted);
+  font-size: 9px;
+  letter-spacing: 1px;
+  text-transform: none;
+  font-variant-numeric: tabular-nums; /* PAT-01 */
+}
+
+.login-foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-top: 22px;
+}
+.login-foot .version { margin-top: 0; text-align: right; }
+
+/* --------------------------------------------------------------------------
+   Appliance shell — left sidebar + main workspace
+   -------------------------------------------------------------------------- */
+
+.layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+.sidebar {
+  width: var(--sidebar-width);
+  background: var(--panel-bg);
+  border-right: 1px solid var(--border-main);
+  padding: 0;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  z-index: var(--z-sidebar);
+}
+
+.sidebar .logo {
+  padding: 15px;
+  border-bottom: 2px solid var(--border-main);
+}
+
+.sidebar .logo h1 {
+  font-size: 13px;
+  color: var(--text-dark);
+  letter-spacing: 1px;
+  white-space: nowrap;
+}
+
+.sidebar .logo p {
+  font-size: 9px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.sidebar-footer {
+  margin-top: auto;
+  padding: 12px 15px;
+  border-top: 1px solid var(--border-main);
+}
+
+.sidebar-footer a {
+  font-size: 10px;
+  color: var(--text-muted);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: inherit;
+}
+
+.sidebar-footer a:hover {
+  color: var(--accent-red-ink);
+  text-decoration: none;
+}
+
+.app-ver {
+  font-size: 8px;
+  color: var(--text-muted);
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+  font-variant-numeric: tabular-nums; /* PAT-01 */
+}
+
+.main {
+  flex: 1;
+  padding: 25px;
+  max-width: 900px;
+  position: relative;
+}
+
+.main h2 {
+  font-size: 13px;
+  font-weight: bold;
+  margin-bottom: 15px;
+  border-bottom: 2px solid var(--border-main);
+  padding-bottom: 8px;
+}
+
+.section {
+  display: none;
+}
+
+.section.active {
+  display: block;
+  background: var(--surface-pane);
+  border: 1px solid var(--border-light);
+  padding: 20px;
+}
+
+.mobile-top,
+.sidebar-backdrop,
+.menu-btn {
+  display: none;
+}
+
+body.nav-open {
+  overflow: hidden;
+}
+
+/* --------------------------------------------------------------------------
+   Mobile shell (dashboard index.html)
+   -------------------------------------------------------------------------- */
+
+@media (max-width: 768px) {
+  .mobile-top {
+    display: flex;
+    position: sticky;
+    top: 0;
+    z-index: var(--z-sticky);
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    padding-top: max(10px, env(safe-area-inset-top));
+    background: var(--panel-bg);
+    border-bottom: 1px solid var(--border-main);
+  }
+
+  .menu-btn {
+    display: flex;
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    background: transparent;
+    border: 1px solid var(--border-main);
+    cursor: pointer;
+  }
+
+  .menu-btn span {
+    display: block;
+    width: 16px;
+    height: 1.5px;
+    background: var(--text-dark);
+  }
+
+  .mobile-brand {
+    font-size: 12px;
+    font-weight: bold;
+    letter-spacing: 1px;
+  }
+
+  .mobile-site {
+    font-size: 9px;
+    color: var(--text-muted);
+    margin-top: 1px;
+  }
+
+  .layout {
+    flex-direction: column;
+    min-height: 100dvh;
+  }
+
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: min(280px, 86vw);
+    z-index: var(--z-drawer-mobile);
+    transform: translateX(-105%);
+    transition: transform 0.2s ease;
+    padding-top: env(safe-area-inset-top);
+    box-shadow: none;
+    overflow-y: auto;
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+    box-shadow: 8px 0 24px rgba(0, 0, 0, 0.12);
+  }
+
+  .sidebar-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: var(--scrim);
+    z-index: var(--z-sidebar);
+  }
+
+  .sidebar-backdrop.show {
+    display: block;
+  }
+
+  .nav-item {
+    padding: 14px 16px;
+    font-size: 12px;
+    min-height: 44px;
+    border-left-width: 4px;
+  }
+
+  .sidebar-footer {
+    padding-bottom: max(12px, env(safe-area-inset-bottom));
+  }
+
+  .main {
+    padding: 12px;
+    max-width: none;
+    padding-bottom: max(20px, env(safe-area-inset-bottom));
+  }
+
+  .main h2 {
+    font-size: 14px;
+  }
+
+  .section.active {
+    padding: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  body.page-login {
+    align-items: flex-start;
+    height: auto;
+    min-height: 100dvh;
+    overflow: auto;
+    padding: 28px 16px;
+    padding-top: max(28px, env(safe-area-inset-top));
+    padding-bottom: max(28px, env(safe-area-inset-bottom));
+  }
+
+  .login-container {
+    width: 100%;
+    max-width: 380px;
+    padding: 28px 20px 36px;
+  }
+
+  .main-title {
+    font-size: 20px;
+    height: auto;
+    min-height: 32px;
+  }
+
+  .form-control,
+  .btn-submit {
+    font-size: 16px;
+    min-height: 44px;
+  }
+}
+
+/* PAT-05 · kit scanners stop when the user asks for reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .ambient-scanner-h,
+  .ambient-scanner-v { animation: none; }
+}

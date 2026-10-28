@@ -1,0 +1,13 @@
+.env
+*.pem
+venv/
+__pycache__/
+*.pyc
+*.pyo
+.DS_Store
+*.log
+.idea/
+.vscode/
+extensions.json
+dashboard/state.json
+dashboard/.flask_secret

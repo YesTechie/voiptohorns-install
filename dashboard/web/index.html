@@ -1,0 +1,1126 @@
+<!DOCTYPE html>
+<html lang="en" data-theme-default="system">
+<head>
+<script>/* THM-04 theme boot: runs before CSS so the first paint is already themed */(function(d){try{var p=localStorage.getItem("yt-theme")||d.dataset.themeDefault||"system";var t=p==="system"?(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"):p;d.dataset.theme=t==="dark"?"dark":"light";d.dataset.themePref=p}catch(e){d.dataset.theme="light"}})(document.documentElement);</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#eef2ef">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>YesTechie Labs</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/css/tokens.css">
+<link rel="stylesheet" href="/static/css/layout.css">
+<link rel="stylesheet" href="/static/css/components.css">
+<link rel="stylesheet" href="/static/css/theme.css">
+<link rel="stylesheet" href="/static/css/product.css">
+</head>
+<body>
+<div class="https-bar" id="httpsBar">Microphone is blocked on HTTP.
+  <a class="btn btn-primary btn-sm" id="httpsGo" href="#">Continue on HTTPS</a>
+  <a class="btn btn-sm" href="/ca.mobileconfig">Install certificate (Mac / iPhone)</a>
+</div>
+<div class="sidebar-backdrop" id="sidebarBackdrop" onclick="toggleMenu(false)"></div>
+<div class="https-bar" id="consoleBar">Connect your UniFi console in Config to start paging.</div>
+<div class="layout">
+  <header class="mobile-top">
+    <button type="button" class="menu-btn" id="menuBtn" aria-label="Menu" onclick="toggleMenu()">
+      <span></span><span></span><span></span>
+    </button>
+    <div>
+      <div class="mobile-brand">YesTechie Labs</div>
+      <div class="mobile-site" id="siteNameMobile">VoIP to Horns</div>
+    </div>
+    <button type="button" class="theme-cycle" data-theme-cycle></button>
+  </header>
+  <div class="sidebar">
+    <div class="logo">
+      <h1>YesTechie Labs</h1>
+      <p id="siteName">VoIP to Horns</p>
+    </div>
+    <nav class="sidebar-nav" aria-label="Sections">
+      <button type="button" class="nav-item active" data-section="talk" onclick="showSection('talk')">// Talk</button>
+      <button type="button" class="nav-item" data-section="zones" onclick="showSection('zones')">// Zones</button>
+      <button type="button" class="nav-item" data-section="status" onclick="showSection('status')">// Status</button>
+      <button type="button" class="nav-item" data-section="config" onclick="showSection('config')">// Config</button>
+      <button type="button" class="nav-item" data-section="logs" onclick="showSection('logs')">// Logs</button>
+    </nav>
+    <div class="sidebar-footer">
+      <button type="button" class="theme-cycle" data-theme-cycle></button>
+      <div class="app-ver" id="appVersion"></div>
+      <a href="/logout">// Sign Out</a>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="section" id="sec-status">
+      <h2>System Status</h2>
+      <div class="panel">
+        <div class="panel-header">Voip Bridge</div>
+        <div class="data-row"><span>State</span><span class="data-value" id="statusState">—</span></div>
+        <div class="data-row"><span>Process ID</span><span class="data-value" id="statusPid">—</span></div>
+        <div class="data-row"><span>Running Since</span><span class="data-value" id="statusSince">—</span></div>
+        <div class="data-row"><span>Call</span><span class="data-value" id="statusCall">—</span></div>
+        <div style="margin-top:10px"><span id="statusDot" class="badge"><span class="dot"></span>—</span></div>
+      </div>
+      <div class="panel">
+        <div class="panel-header">Sip Registration</div>
+        <div id="sipRegs"></div>
+      </div>
+      <div class="panel">
+        <div class="panel-header">Connections</div>
+        <div class="data-row"><span>UniFi Console</span><span class="data-value" id="healthNvr"><span class="dot"></span> Checking...</span></div>
+        <div class="data-row"><span>Protect Talkback</span><span class="data-value" id="healthTalk"><span class="dot"></span> Checking...</span></div>
+      </div>
+      <div class="panel">
+        <div class="panel-header">Hardware</div>
+        <div class="data-row"><span>CPU Temp</span><span class="data-value" id="sysTemp">—</span></div>
+        <div class="data-row"><span>CPU Load</span><span class="data-value" id="sysLoad">—</span></div>
+        <div class="data-row"><span>Memory</span><span class="data-value" id="sysMem">—</span></div>
+        <div id="sysMemBank" class="power-bank" style="margin-bottom:10px"></div>
+        <div class="data-row"><span>Disk</span><span class="data-value" id="sysDisk">—</span></div>
+        <div id="sysDiskBank" class="power-bank" style="margin-bottom:10px"></div>
+        <div class="data-row"><span>System Uptime</span><span class="data-value" id="sysUptime">—</span></div>
+      </div>
+      <button class="btn btn-alert btn-sm" onclick="confirmRestart()">Restart Bridge</button>
+    </div>
+
+    <div class="section active" id="sec-talk">
+      <h2>Live Page</h2>
+      <p class="note">Pick a zone. Hold To Talk stays off until that horn is ready, then hold to talk, type a short TTS page, or play the test clip.</p>
+
+      <div class="panel" id="talkZonePanel">
+        <div class="panel-header">Target Zone</div>
+        <div class="chip-list" id="talkZones"></div>
+      </div>
+
+      <div class="panel" id="pttPanel" data-ptt-state="idle">
+        <div class="panel-header">Push To Talk</div>
+        <button class="momentary-pad" id="pttBtn" type="button"
+          onpointerdown="pttHold(event,true)" onpointerup="pttHold(event,false)"
+          onpointercancel="pttHold(event,false)" onlostpointercapture="pttHold(event,false)"
+          oncontextmenu="return false"
+          disabled aria-disabled="true" data-ptt-state="idle"
+          aria-pressed="false">
+          <span class="ptt-label">Hold To Talk</span>
+          <small class="ptt-sub">Hold or Space · HTTPS required</small>
+        </button>
+        <p class="note ptt-status" id="pttStatus" aria-live="polite"></p>
+        <div class="level-meter" id="level"></div>
+      </div>
+
+      <div class="panel" id="ttsPanel">
+        <div class="panel-header">TTS</div>
+        <div class="form-group">
+          <label for="ttsText">Text to speak</label>
+          <textarea id="ttsText" maxlength="120" rows="3" placeholder="Type a short page…" oninput="onTtsInput()" enterkeyhint="done"></textarea>
+          <div class="tts-meta">
+            <span id="ttsCount" class="tts-count">0/120</span>
+          </div>
+          <p class="note">Robotic NVR voice · max 120 characters</p>
+        </div>
+        <div class="btn-row">
+          <button type="button" class="btn btn-primary" id="ttsPlay" onclick="playTts()" disabled>PLAY</button>
+          <span id="ttsStatus" class="tts-status" aria-live="polite"></span>
+        </div>
+      </div>
+
+      <div class="panel" id="testClipPanel">
+        <div class="panel-header">Test clip</div>
+        <p class="note">Stored announcement to the selected zone. No mic.</p>
+        <div class="btn-row">
+          <button type="button" class="btn btn-primary" onclick="playTest()">Play Test Announcement</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="section" id="sec-zones">
+      <h2>Speaker Zones</h2>
+      <p class="note">A zone is one paging group: a Talk extension plus the Protect horns that play when it is dialed. Click Refresh From Console once to load Talk and Protect. Do not click it repeatedly.</p>
+      <div class="err-banner" id="zonesError"></div>
+      <div class="toolbar">
+        <button class="btn btn-primary" onclick="showAddZone()">Add Zone</button>
+        <button class="btn" id="btnConnect" onclick="connectUnifi()">Refresh From Console</button>
+      </div>
+      <div class="panel" id="addZonePanel" style="display:none">
+        <div class="panel-header">New Zone</div>
+        <div class="zone-grid">
+          <div class="form-group"><label>Name</label><input id="newZoneName" placeholder="Office PA"></div>
+          <div class="form-group"><label>Extension</label><input id="newZoneExt" placeholder="0020"></div>
+        </div>
+        <div class="form-group"><label>Horns</label><div class="chip-list" id="newZoneHorns"></div></div>
+        <div class="btn-row">
+          <button class="btn btn-primary" onclick="createZone()">Create Zone</button>
+          <button class="btn" onclick="hideAddZone()">Cancel</button>
+        </div>
+      </div>
+      <div id="zonesList"></div>
+    </div>
+
+    <div class="section" id="sec-config">
+      <h2>Site Configuration</h2>
+      <div class="panel">
+        <div class="panel-header">Appearance</div>
+        <fieldset class="fieldset">
+          <legend>Theme</legend>
+          <div class="theme-options">
+            <label class="theme-option"><input type="radio" name="themeRow" value="light" data-theme-radio><span class="to-head">Light</span><span class="to-prev light"><i></i><i></i><i></i><i></i></span><span class="to-sub">Labs Light · classic</span></label>
+            <label class="theme-option"><input type="radio" name="themeRow" value="dark" data-theme-radio><span class="to-head">Dark</span><span class="to-prev dark"><i></i><i></i><i></i><i></i></span><span class="to-sub">Labs Dark · night ops</span></label>
+            <label class="theme-option"><input type="radio" name="themeRow" value="system" data-theme-radio><span class="to-head">System</span><span class="to-prev system"><i></i><i></i></span><span class="to-sub">Follow device · default</span></label>
+          </div>
+          <p class="note" style="margin-top:10px;margin-bottom:0">Stored on this browser. A kiosk can pin the theme with data-theme-default and hide this row.</p>
+        </fieldset>
+      </div>
+      <div class="panel">
+        <div class="panel-header">General</div>
+        <div class="form-group"><label>Site Name</label><input id="cfg_site_name" placeholder="Your site name, for example Main Office"></div>
+        <div class="form-group"><label>Pi LAN Address (MY_IP)</label><input id="cfg_my_ip"></div>
+      </div>
+      <div class="panel">
+        <div class="panel-header">UniFi Console</div>
+        <p class="note">Same local admin used by the bridge to obtain Protect talkback tokens.</p>
+        <div class="form-group"><label>UniFi Host</label><input id="cfg_unifi_host" placeholder="https://&lt;console-ip&gt;"></div>
+        <div class="form-row">
+          <div class="form-group"><label>UniFi Username</label><input id="cfg_unifi_username" class="case-sensitive" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false"></div>
+          <div class="form-group"><label>UniFi Password</label>
+            <div class="input-wrap"><input id="cfg_unifi_password" class="case-sensitive" type="password" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false"><button class="reveal" type="button" onclick="toggleReveal(this)">Show</button></div>
+          </div>
+        </div>
+        <button class="btn btn-sm" onclick="testUnifi()">Test Console Login</button>
+        <span id="unifiTestResult" style="margin-left:8px;font-size:10px"></span>
+      </div>
+      <div class="panel">
+        <div class="panel-header">Sip / Talk</div>
+        <div class="form-row">
+          <div class="form-group"><label>SIP Server</label><input id="cfg_sip_server"></div>
+          <div class="form-group"><label>SIP Port</label><input id="cfg_sip_port"></div>
+        </div>
+        <div class="form-group"><label>RTP Port</label><input id="cfg_rtp_port"></div>
+        <p class="note">SIP passwords come from Talk when a zone is created. They are not typed here.</p>
+      </div>
+      <div class="panel" id="httpsCertPanel">
+        <div class="panel-header"><span class="ph-title">HTTPS / Microphone</span></div>
+        <p class="note">Hold To Talk needs a secure page. Opening this page over http:// now jumps to HTTPS. To skip the browser warning on this Mac or iPhone, install the certificate once, then reload.</p>
+        <div class="btn-row">
+          <a class="btn btn-primary" href="/ca.mobileconfig">Install on Mac / iPhone</a>
+          <a class="btn" href="/ca.crt">Download .crt</a>
+        </div>
+        <p class="note note-steps">Mac: open the profile → Install. If macOS hides it, System Settings → General → Device Management. iPhone: Settings → Profile Downloaded → Install. Windows: open the .crt → Install Certificate → Local Machine → Trusted Root.</p>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="saveConfig()">Save Configuration</button>
+      </div>
+    </div>
+
+    <div class="section" id="sec-logs">
+      <div class="ws-bar">
+        <div class="crumbs"><span class="up">Bridge</span><span class="sep">/</span><span>Logs</span></div>
+      </div>
+      <div class="term" id="logsTerm" data-term="live">
+        <div class="term-head">
+          <span class="t-title">bridge_tcp.log</span>
+          <span><span id="logLineCount">0</span> lines</span>
+          <span class="chip-list" style="margin:0" data-single id="logLevelChips">
+            <button class="chip active" type="button" data-term-level="all">All</button>
+            <button class="chip" type="button" data-term-level="err">Err</button>
+            <button class="chip" type="button" data-term-level="wrn">Wrn</button>
+          </span>
+          <span class="t-tools">
+            <button class="btn" type="button" id="logPauseBtn" onclick="toggleLogPause()">Pause</button>
+            <button class="btn" type="button" onclick="clearLogView()">Clear</button>
+          </span>
+        </div>
+        <div class="terminal-window scroll-tactical" id="logBox" style="max-height:60vh"><div class="terminal-line">Loading...</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="restartModal">
+  <div class="modal">
+    <h3>Restart Bridge?</h3>
+    <p>Restarts the SIP bridge on this Pi. Extensions will re-register.</p>
+    <div class="btn-row">
+      <button class="btn btn-alert" onclick="doRestart()">Confirm Restart</button>
+      <button class="btn" onclick="closeModal('restartModal')">Cancel</button>
+    </div>
+  </div>
+</div>
+<div class="modal-overlay" id="deleteModal">
+  <div class="modal">
+    <h3>Delete Zone?</h3>
+    <p id="deleteModalText">This removes the Talk user and third-party phone from the UniFi console. Protect horns are not deleted.</p>
+    <div class="btn-row">
+      <button class="btn btn-alert" onclick="doDeleteZone()">Delete Zone</button>
+      <button class="btn" onclick="closeModal('deleteModal')">Cancel</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+function httpsUrl(){ return 'https://'+location.hostname+'/'; }
+function skipHttpsUpgrade(){
+  return !!(location.port && location.port!=='443');
+}
+function preferHttps(){
+  if(window.isSecureContext) return false;
+  const h=location.hostname;
+  if(!h || h==='localhost' || h==='127.0.0.1') return false;
+  if(skipHttpsUpgrade()) return false;
+  location.replace(httpsUrl());
+  return true;
+}
+if(!preferHttps() && !window.isSecureContext && !skipHttpsUpgrade()){
+  const bar=document.getElementById('httpsBar');
+  if(bar){
+    bar.classList.add('show');
+    const go=document.getElementById('httpsGo');
+    if(go) go.href=httpsUrl();
+  }
+}
+
+let INVENTORY = {speakers:[], zones:[], next_ext:'0020', used_exts:[]};
+let talkZone = '';
+let talking = false;
+let logInterval = null;
+let pendingDeleteExt = null;
+let addHornSel = {};
+let openZone = null;
+
+function toggleMenu(force){
+  const sb=document.querySelector('.sidebar');
+  const bd=document.getElementById('sidebarBackdrop');
+  if(!sb) return;
+  const open = force===undefined ? !sb.classList.contains('open') : !!force;
+  sb.classList.toggle('open', open);
+  if(bd) bd.classList.toggle('show', open);
+  document.body.classList.toggle('nav-open', open);
+}
+function showSection(id){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('sec-'+id).classList.add('active');
+  document.querySelector(`[data-section="${id}"]`).classList.add('active');
+  toggleMenu(false);
+  if(id==='logs'){ startLogLive(); }
+  else { stopLogLive(); }
+  if(id==='config') fetchConfig();
+  if(id==='status') { fetchStatus(); fetchHealth(); }
+  if(id==='talk') { loadZones().then(renderTalk); }
+  if(id==='zones') loadZones();
+}
+
+function toast(msg, ok=true, ms){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.className='toast show '+(ok?'success':'error');
+  clearTimeout(t._hide);
+  t._hide=setTimeout(()=>t.classList.remove('show'), ms||2200);
+}
+function zoneNotice(d, okLabel, failLabel){
+  const warnings=(d&&Array.isArray(d.warnings))?d.warnings:[];
+  if(d&&d.ok&&warnings.length){
+    toast(okLabel+'. '+warnings.join(' '), false, 6000);
+    return;
+  }
+  toast((d&&d.ok)?okLabel:((d&&d.error)||failLabel), !!(d&&d.ok));
+}
+function toggleReveal(btn){
+  const inp=btn.parentElement.querySelector('input');
+  inp.type = inp.type==='password' ? 'text' : 'password';
+  btn.textContent = inp.type==='password' ? 'Show' : 'Hide';
+}
+function renderPowerBank(id, pct){
+  const el=document.getElementById(id); if(!el) return;
+  el.innerHTML='';
+  for(let i=0;i<10;i++){
+    const s=document.createElement('div'); s.className='power-segment';
+    if(i < Math.round(pct/10)) s.classList.add(pct>=90?'critical':pct>=70?'warning':'active');
+    el.appendChild(s);
+  }
+}
+function paintLevel(rms){
+  const meter=document.getElementById('level');
+  if(!meter) return;
+  const cells=meter.children.length;
+  const on=Math.round(Math.min(1, (rms||0)*1.8)*cells);
+  for(let i=0;i<cells;i++){
+    meter.children[i].className=i<on ? ('on'+(i>=14?' clip':i>=11?' hot':'')) : '';
+  }
+}
+function setDot(el, ok, label){
+  el.innerHTML = `<span class="dot ${ok?'dot-green':'dot-red'}"></span> ${label}`;
+}
+
+async function fetchStatus(){
+  const r=await fetch('/api/status');
+  if(r.status===401){ location.href='/login'; return; }
+  const d=await r.json();
+  document.getElementById('siteName').textContent=d.site_name||'VoIP to Horns';
+  const siteMob=document.getElementById('siteNameMobile');
+  if(siteMob) siteMob.textContent=d.site_name||'VoIP to Horns';
+  const ver=document.getElementById('appVersion');
+  if(ver && d.version) ver.textContent='v'+d.version;
+  document.getElementById('statusState').textContent=d.state||'—';
+  document.getElementById('statusPid').textContent=d.pid!=null?d.pid:'—';
+  document.getElementById('statusSince').textContent=d.since||'—';
+  document.getElementById('statusCall').textContent=d.call || 'Idle';
+  const badge=document.getElementById('statusDot');
+  const up=d.state==='active';
+  badge.innerHTML=`<span class="dot ${up?'dot-green':'dot-red'}"></span>${up?'Online':'Offline'}`;
+  const sip=document.getElementById('sipRegs');
+  sip.innerHTML='';
+  (d.sip||[]).forEach(s=>{
+    sip.innerHTML += `<div class="data-row"><span>${s.ext} ${s.name}</span><span class="data-value"><span class="dot ${s.ok?'dot-green':'dot-red'}"></span> ${s.ok?'Registered':'Down'}</span></div>`;
+  });
+  if(d.sys){
+    document.getElementById('sysTemp').textContent=d.sys.cpu_temp!=null?d.sys.cpu_temp+' C':'—';
+    document.getElementById('sysLoad').textContent=d.sys.cpu_load!=null?d.sys.cpu_load:'—';
+    document.getElementById('sysMem').textContent=d.sys.mem_used_mb!=null?`${d.sys.mem_used_mb} / ${d.sys.mem_total_mb} MB (${d.sys.mem_pct}%)`:'—';
+    document.getElementById('sysDisk').textContent=d.sys.disk_used_gb!=null?`${d.sys.disk_used_gb} / ${d.sys.disk_total_gb} GB (${d.sys.disk_pct}%)`:'—';
+    document.getElementById('sysUptime').textContent=d.sys.uptime||'—';
+    renderPowerBank('sysMemBank', d.sys.mem_pct||0);
+    renderPowerBank('sysDiskBank', d.sys.disk_pct||0);
+  }
+}
+async function fetchHealth(){
+  const r=await fetch('/api/health');
+  if(r.status===401){ location.href='/login'; return; }
+  const d=await r.json();
+  setDot(document.getElementById('healthNvr'), d.nvr&&d.nvr.ok, d.nvr&&d.nvr.ok ? 'Connected' : (d.nvr&&d.nvr.error||'Down'));
+  setDot(document.getElementById('healthTalk'), d.talkback&&d.talkback.ok, d.talkback&&d.talkback.ok ? 'Ready' : 'Idle');
+}
+function renderTalk(){
+  const box=document.getElementById('talkZones');
+  box.innerHTML='';
+  const zones=INVENTORY.zones||[];
+  if(!zones.length){
+    box.innerHTML='<span class="muted">No zones yet — add one under Zones.</span>';
+    updateTtsPlayState();
+    return;
+  }
+  zones.forEach(z=>{
+    const b=document.createElement('button');
+    b.className='chip'+(talkZone===z.ext?' active':'');
+    b.type='button';
+    b.textContent=`${z.ext} ${z.name}`;
+    b.onclick=()=>{ selectTalkZone(z.ext); };
+    box.appendChild(b);
+  });
+  updateTtsPlayState();
+}
+let pttWs=null, pttCtx=null, pttProc=null, pttStream=null, pttStarting=false, pttWant=false, pttLive=false, pttPendingStop=false;
+let pttGate='idle', pttWarmGen=0;
+let pttWarm={state:'idle',ext:'',ticket:null,warm:false};
+function downsample(input, inRate, outRate){
+  if(inRate===outRate) return input;
+  const ratio=inRate/outRate, n=Math.round(input.length/ratio);
+  const out=new Float32Array(n);
+  for(let i=0;i<n;i++){
+    const x=i*ratio, i0=Math.floor(x), i1=Math.min(i0+1, input.length-1), f=x-i0;
+    out[i]=input[i0]*(1-f)+input[i1]*f;
+  }
+  return out;
+}
+function floatTo16(f32){
+  const buf=new ArrayBuffer(f32.length*2);
+  const v=new DataView(buf);
+  for(let i=0;i<f32.length;i++){
+    let s=Math.max(-1, Math.min(1, f32[i]));
+    v.setInt16(i*2, s<0 ? s*0x8000 : s*0x7fff, true);
+  }
+  return buf;
+}
+function setPttGate(state){
+  pttGate=state;
+  const btn=document.getElementById('pttBtn');
+  const panel=document.getElementById('pttPanel');
+  const mid=state==='connecting'||state==='live';
+  if(btn){
+    try{ btn.dataset.pttState=state; }catch(e){}
+    btn.disabled=!(mid||state==='ready');
+    try{ btn.setAttribute('aria-disabled', btn.disabled?'true':'false'); }catch(e){}
+  }
+  if(panel){ try{ panel.dataset.pttState=state; }catch(e){} }
+  try{
+    if(typeof CustomEvent==='function' && document.dispatchEvent){
+      document.dispatchEvent(new CustomEvent('ptt-state',{detail:{state:state,ext:talkZone||'',warm:state==='ready'}}));
+    }
+  }catch(e){}
+}
+function setPttUi(state){
+  const btn=document.getElementById('pttBtn');
+  const label=btn.querySelector('.ptt-label');
+  const sub=btn.querySelector('.ptt-sub');
+  const status=document.getElementById('pttStatus');
+  btn.classList.remove('connecting','live');
+  btn.setAttribute('aria-pressed','false');
+  if(state==='connecting'){
+    btn.classList.add('connecting');
+    if(label) label.textContent='Connecting…';
+    if(sub) sub.textContent='Opening Protect talkback · keep holding';
+    if(status) status.textContent='Protect handshake usually takes a few seconds — keep holding.';
+  } else if(state==='live'){
+    btn.classList.add('live');
+    btn.setAttribute('aria-pressed','true');
+    if(label) label.textContent='Live';
+    if(sub) sub.textContent='Release to stop';
+    if(status) status.textContent='On air — release when done.';
+  } else {
+    if(label) label.textContent='Hold To Talk';
+    if(sub) sub.textContent='Hold or Space · HTTPS required';
+    if(status) status.textContent='';
+  }
+  setPttGate(state==='connecting'||state==='live'?state:'idle');
+}
+function pttHold(ev, on){
+  ev.preventDefault();
+  const btn=document.getElementById('pttBtn');
+  if(on){
+    // Dead until Ready. A hold already in Connecting/Live stays attached so release can latch.
+    if(btn.disabled) return;
+    try{ btn.setPointerCapture(ev.pointerId); }catch(e){}
+    pttWant=true;
+    pttPendingStop=false;
+    if(!talking && !pttStarting) pttStart();
+    return;
+  }
+  // Capture can drop while the finger is still down. That is not a release.
+  if(ev.type==='lostpointercapture' && ev.buttons) return;
+  pttWant=false;
+  if(pttStarting){
+    // Latch: a release during Connecting must not cancel the handshake.
+    // Remember it and stop once Live, unless the pad is held again first.
+    pttPendingStop=true;
+    return;
+  }
+  if(talking) pttStop();
+}
+async function pttStart(){
+  if(talking || pttStarting) return;
+  if(!talkZone){ toast('Pick a zone', false); return; }
+  if(!window.isSecureContext && !skipHttpsUpgrade()){
+    location.replace(httpsUrl());
+    return;
+  }
+  pttStarting=true;
+  pttLive=false;
+  pttPendingStop=false;
+  setPttUi('connecting');
+  try{
+    // Mic + AudioContext must start in the same tap/hold as the button (Safari).
+    // AEC/NS chop the voice into PLC-like stutter on the horn.
+    // /api/ptt/start returns a ticket before Protect is open; stay on Connecting
+    // until the socket says live. Releasing here does not abort this attempt.
+    pttStream=await navigator.mediaDevices.getUserMedia({audio:{
+      echoCancellation:false, noiseSuppression:false, autoGainControl:false, channelCount:1
+    }});
+    pttCtx=new (window.AudioContext||window.webkitAudioContext)();
+    if(pttCtx.state==='suspended') await pttCtx.resume();
+    const src=pttCtx.createMediaStreamSource(pttStream);
+    pttProc=pttCtx.createScriptProcessor(4096, 1, 1);
+    pttProc.onaudioprocess=e=>{
+      if(!pttLive || !pttWant || !pttWs || pttWs.readyState!==1) return;
+      const input=e.inputBuffer.getChannelData(0);
+      let sum=0;
+      for(let i=0;i<input.length;i++) sum+=input[i]*input[i];
+      const rms=Math.sqrt(sum/input.length);
+      paintLevel(rms);
+      const pcm=downsample(input, pttCtx.sampleRate, 24000);
+      pttWs.send(floatTo16(pcm));
+    };
+    const mute=pttCtx.createGain(); mute.gain.value=0;
+    src.connect(pttProc); pttProc.connect(mute); mute.connect(pttCtx.destination);
+
+    // Ready session: attach the mic to the warm ticket. Otherwise today's cold start.
+    const armed=pttWarm && (pttWarm.state==='ready'||pttWarm.warm) && pttWarm.ext===talkZone && pttWarm.ticket;
+    let ticket;
+    if(armed){
+      ticket=pttWarm.ticket;
+    }else{
+      const r=await fetch('/api/ptt/start',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({ext:talkZone})});
+      const d=await r.json();
+      if(!d.ok) throw new Error(d.error||'PTT start failed');
+      ticket=d.ticket;
+    }
+    const proto=location.protocol==='https:'?'wss:':'ws:';
+    pttWs=new WebSocket(`${proto}//${location.host}/ws/ptt`);
+    pttWs.binaryType='arraybuffer';
+    await new Promise((resolve, reject)=>{
+      pttWs.onopen=resolve;
+      pttWs.onerror=()=>reject(new Error('PTT socket failed'));
+    });
+    pttWs.send(JSON.stringify({ticket:ticket}));
+    await new Promise((resolve, reject)=>{
+      const timer=setTimeout(()=>reject(new Error('Protect talkback timed out')), 20000);
+      const fail=(err)=>{
+        clearTimeout(timer);
+        if(pttWs){ pttWs.onmessage=null; pttWs.onclose=null; pttWs.onerror=null; }
+        reject(err);
+      };
+      pttWs.onmessage=(ev)=>{
+        if(typeof ev.data!=='string') return;
+        let msg;
+        try{ msg=JSON.parse(ev.data); }catch(e){ return; }
+        if(msg.state==='live'){
+          clearTimeout(timer);
+          pttWs.onmessage=null;
+          pttWs.onclose=null;
+          pttWs.onerror=null;
+          resolve();
+        } else if(msg.ok===false || msg.error){
+          fail(new Error(msg.error||'Protect talkback failed'));
+        }
+      };
+      pttWs.onclose=()=>fail(new Error('PTT socket closed before Protect was ready'));
+      pttWs.onerror=()=>fail(new Error('PTT socket failed'));
+    });
+    talking=true;
+    if(pttPendingStop || !pttWant){
+      setPttUi('live');
+      await pttStop();
+      return;
+    }
+    pttLive=true;
+    setPttUi('live');
+  }catch(err){
+    toast(err.message||'Hold to talk failed', false);
+    await pttStop();
+  }finally{
+    pttStarting=false;
+  }
+}
+async function pttStop(){
+  pttWarmGen++;
+  pttWarm={state:'idle',ext:talkZone||'',ticket:null,warm:false};
+  talking=false;
+  pttLive=false;
+  pttWant=false;
+  pttPendingStop=false;
+  setPttUi('idle');
+  paintLevel(0);
+  try{ if(pttProc) pttProc.disconnect(); }catch(e){}
+  pttProc=null;
+  try{ if(pttCtx) await pttCtx.close(); }catch(e){}
+  pttCtx=null;
+  if(pttStream){ pttStream.getTracks().forEach(t=>t.stop()); pttStream=null; }
+  try{ if(pttWs) pttWs.close(); }catch(e){}
+  pttWs=null;
+  try{ await fetch('/api/ptt/stop',{method:'POST'}); }catch(e){}
+}
+function disarmTalkWarm(){
+  pttWarmGen++;
+  pttWarm={state:'idle',ext:'',ticket:null,warm:false};
+  if(!talking && !pttStarting) setPttGate('idle');
+}
+function applyWarmSnapshot(d, ext, gen){
+  if(gen!==pttWarmGen || talkZone!==ext) return;
+  const state=d.state||'idle';
+  pttWarm={
+    state:state,
+    ext:ext,
+    ticket:d.ticket||null,
+    warm:!!d.warm||state==='ready',
+    error:d.error||''
+  };
+  if(talking || pttStarting) return;
+  if(state==='ready' || d.warm){
+    setPttGate('ready');
+    scheduleWarmPoll(gen, ext, 1000);
+    return;
+  }
+  if(state==='warming' || state==='connecting'){
+    setPttGate('warming');
+    scheduleWarmPoll(gen, ext, 250);
+    return;
+  }
+  if(state==='failed'){
+    setPttGate('failed');
+    return;
+  }
+  setPttGate('idle');
+}
+function scheduleWarmPoll(gen, ext, ms){
+  setTimeout(()=>{ pollWarm(gen, ext); }, ms);
+}
+async function pollWarm(gen, ext){
+  if(gen!==pttWarmGen || talkZone!==ext || talking || pttStarting) return;
+  try{
+    const r=await fetch('/api/ptt/warm?ext='+encodeURIComponent(ext));
+    const d=await r.json();
+    applyWarmSnapshot(d, ext, gen);
+  }catch(e){
+    if(gen===pttWarmGen && talkZone===ext) scheduleWarmPoll(gen, ext, 1000);
+  }
+}
+async function warmTalkZone(ext){
+  const gen=++pttWarmGen;
+  if(!(pttWarm && (pttWarm.state==='ready'||pttWarm.warm) && pttWarm.ext===ext)) setPttGate('warming');
+  try{
+    const r=await fetch('/api/ptt/warm',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({ext:ext})});
+    const d=await r.json();
+    if(gen!==pttWarmGen || talkZone!==ext) return;
+    if(!d.ok){
+      pttWarm={state:'failed',ext:ext,ticket:null,warm:false,error:d.error||''};
+      setPttGate('failed');
+      return;
+    }
+    applyWarmSnapshot(d, ext, gen);
+  }catch(e){
+    if(gen!==pttWarmGen) return;
+    pttWarm={state:'failed',ext:ext,ticket:null,warm:false};
+    setPttGate('failed');
+  }
+}
+async function selectTalkZone(ext){
+  ext=String(ext||'');
+  if(!ext) return;
+  if(ext===talkZone && (pttGate==='warming' || pttGate==='ready')){
+    warmTalkZone(ext);
+    return;
+  }
+  if(talking || pttStarting){
+    try{ await pttStop(); }catch(e){}
+  }
+  talkZone=ext;
+  renderTalk();
+  warmTalkZone(ext);
+}
+function pttTypingTarget(el){
+  if(!el || !el.tagName) return false;
+  const tag=String(el.tagName).toLowerCase();
+  if(tag==='input' || tag==='textarea' || tag==='select') return true;
+  if(el.isContentEditable) return true;
+  try{
+    const role=el.getAttribute && el.getAttribute('role');
+    if(role==='textbox') return true;
+  }catch(e){}
+  return false;
+}
+function onPttSpace(ev){
+  if(!ev || (ev.key!==' ' && ev.code!=='Space')) return;
+  const down=ev.type==='keydown';
+  const typing=pttTypingTarget(ev.target);
+  if(down && typing) return;
+  // Keyup still releases if Hold is already in progress and focus moved into a field.
+  if(!down && typing && !pttWant && !pttStarting && !talking) return;
+  if(down && ev.repeat){
+    ev.preventDefault();
+    return;
+  }
+  ev.preventDefault();
+  pttHold(ev, down);
+}
+
+const TTS_MAX=120;
+let ttsSending=false;
+let ttsStatusTimer=null;
+function currentTalkZone(){
+  return (INVENTORY.zones||[]).find(z=>z.ext===talkZone)||null;
+}
+function onTtsInput(){
+  const el=document.getElementById('ttsText');
+  if(!el) return;
+  if(el.value.length>TTS_MAX) el.value=el.value.slice(0,TTS_MAX);
+  const n=el.value.length;
+  const count=document.getElementById('ttsCount');
+  if(count) count.textContent=n+'/'+TTS_MAX;
+  updateTtsPlayState();
+}
+function updateTtsPlayState(){
+  const btn=document.getElementById('ttsPlay');
+  const el=document.getElementById('ttsText');
+  if(!btn||!el) return;
+  const text=(el.value||'').trim();
+  const zone=currentTalkZone();
+  const ids=(zone&&zone.speaker_ids)||[];
+  const bad=!text || text.length>TTS_MAX || !talkZone || !ids.length || ttsSending;
+  btn.disabled=!!bad;
+  if(!ttsSending) btn.textContent='PLAY';
+}
+function setTtsStatus(msg, kind){
+  const st=document.getElementById('ttsStatus');
+  if(!st) return;
+  st.textContent=msg||'';
+  st.className='tts-status'+(kind?' '+kind:'');
+  if(ttsStatusTimer) clearTimeout(ttsStatusTimer);
+  if(msg){
+    ttsStatusTimer=setTimeout(()=>{
+      st.textContent='';
+      st.className='tts-status';
+    }, 1500);
+  }
+}
+async function playTts(){
+  const el=document.getElementById('ttsText');
+  const btn=document.getElementById('ttsPlay');
+  if(!el||!btn||ttsSending) return;
+  const text=(el.value||'').trim();
+  if(!text){ toast('Type a message', false); return; }
+  if(text.length>TTS_MAX){ toast('Max 120 characters', false); return; }
+  if(!talkZone){ toast('Pick a zone', false); return; }
+  const zone=currentTalkZone();
+  const ids=(zone&&zone.speaker_ids)||[];
+  if(!ids.length){ toast('Zone has no speakers', false); return; }
+  ttsSending=true;
+  btn.disabled=true;
+  btn.textContent='SENDING…';
+  setTtsStatus('', '');
+  try{
+    const r=await fetch('/api/tts',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:text,speaker_ids:ids,ext:talkZone})});
+    const d=await r.json().catch(()=>({ok:false,error:'Bad response'}));
+    if(d.ok){
+      const results=d.results||[];
+      const fails=results.filter(x=>!x.ok);
+      if(fails.length){
+        setTtsStatus('FAIL · '+fails.length+'/'+results.length, 'fail');
+        toast('TTS partial fail', false);
+      }else{
+        const n=results.length||ids.length;
+        setTtsStatus('OK · '+n+' speakers', 'ok');
+        toast('TTS sent', true);
+      }
+    }else{
+      setTtsStatus('FAIL', 'fail');
+      toast(d.error||'TTS failed', false);
+    }
+  }catch(e){
+    setTtsStatus('FAIL', 'fail');
+    toast(e.message||'TTS failed', false);
+  }finally{
+    ttsSending=false;
+    updateTtsPlayState();
+  }
+}
+
+async function playTest(){
+  if(!talkZone){ toast('Pick a zone', false); return; }
+  toast('Playing test to '+talkZone+'…');
+  const r=await fetch('/api/announce',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({ext:talkZone})});
+  const d=await r.json();
+  toast(d.ok?'Test announcement sent':(d.error||'Play failed'), d.ok);
+}
+
+function setZonesError(msg){
+  const el=document.getElementById('zonesError');
+  if(!msg){ el.style.display='none'; el.textContent=''; return; }
+  el.style.display='block'; el.textContent=msg;
+}
+async function loadZones(){
+  const r=await fetch('/api/inventory');
+  if(r.status===401){ location.href='/login'; return; }
+  const d=await r.json();
+  if(!d.ok){ setZonesError(d.error||'Not connected to UniFi. Click Refresh From Console once.'); }
+  else setZonesError('');
+  INVENTORY=d;
+  if(talkZone && !(d.zones||[]).some(z=>z.ext===talkZone)){
+    talkZone='';
+    disarmTalkWarm();
+  }
+  renderZones();
+  renderTalk();
+  return d;
+}
+async function connectUnifi(){
+  const btn=document.getElementById('btnConnect');
+  if(btn){ btn.disabled=true; btn.textContent='Connecting...'; }
+  setZonesError('Connecting to UniFi…');
+  try{
+    const r=await fetch('/api/unifi/connect',{method:'POST'});
+    const d=await r.json();
+    if(d.ok){
+      INVENTORY=d;
+      if(talkZone && !(d.zones||[]).some(z=>z.ext===talkZone)){
+        talkZone='';
+        disarmTalkWarm();
+      }
+      setZonesError('');
+      renderZones(); renderTalk();
+      toast('Connected to UniFi console');
+    } else {
+      setZonesError(d.error||'Connect failed');
+      toast(d.error||'Connect failed', false);
+    }
+  } finally {
+    if(btn){ btn.disabled=false; btn.textContent='Refresh From Console'; }
+  }
+}
+function hornRow(sp, checked, delay, ext){
+  const dly = delay!=null ? delay : (sp.default_delay||0);
+  return `<div class="spk-row">
+    <input type="checkbox" data-sid="${sp.id}" ${checked?'checked':''}>
+    <span>${sp.name}</span>
+    <span class="muted">${sp.online?'Online':'Offline'}</span>
+    <span style="margin-left:auto;display:flex;align-items:center;gap:6px">
+      <input class="delay-input" data-delay="${sp.id}" value="${dly}" title="Delay ms">
+      <span class="muted">ms</span>
+    </span>
+  </div>`;
+}
+function hornSummary(z, speakers){
+  const ids=new Set(z.speaker_ids||[]);
+  const names=(speakers||[]).filter(sp=>ids.has(sp.id)).map(sp=>sp.name);
+  if(!names.length) return 'No horns';
+  if(names.length===1) return names[0];
+  return names.length+' horns';
+}
+function toggleZone(ext){
+  openZone = openZone===ext ? null : ext;
+  document.querySelectorAll('.zone-card').forEach(el=>{
+    el.classList.toggle('open', el.dataset.ext===openZone);
+  });
+}
+function renderZones(){
+  const box=document.getElementById('zonesList');
+  const speakers=INVENTORY.speakers||[];
+  const zones=INVENTORY.zones||[];
+  if(!zones.length){
+    box.innerHTML='<p class="note">No third-party Talk phones yet. Add a zone to create one.</p>';
+    return;
+  }
+  box.innerHTML='';
+  zones.forEach(z=>{
+    const sipCls=z.sip_reg?'sip-ok':'sip-pend';
+    const sipLabel=z.sip_reg?'Registered':(z.status||'Pending').replace(/_/g,' ');
+    const selected=new Set(z.speaker_ids||[]);
+    const delays=z.delays||{};
+    const safeName=(z.name||'').replace(/"/g,'&quot;').replace(/'/g,'');
+    const p=document.createElement('div');
+    p.className='panel zone-card'+(openZone===z.ext?' open':'');
+    p.id='zone-'+z.ext;
+    p.dataset.ext=z.ext;
+    p.innerHTML=`<div class="zone-summary" onclick="toggleZone('${z.ext}')">
+        <span class="zone-ext">${z.ext}</span>
+        <span class="zone-title">${z.name||''}</span>
+        <span class="zone-horns-sum">${hornSummary(z, speakers)}</span>
+        <span class="${sipCls}">${sipLabel}</span>
+        <span class="zone-chevron">▸</span>
+      </div>
+      <div class="zone-body"><div class="zone-body-inner">
+        <div class="zone-grid">
+          <div class="form-group"><label>Name</label><input id="zn-name-${z.ext}" value="${safeName}"></div>
+          <div class="form-group"><label>Extension</label><input id="zn-ext-${z.ext}" value="${z.ext}"></div>
+        </div>
+        <div class="form-group"><label>Horns</label>
+          ${speakers.map(sp=>hornRow(sp, selected.has(sp.id), delays[sp.id], z.ext)).join('') || '<span class="muted">No Protect speakers found.</span>'}
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-primary" onclick="saveZone('${z.ext}')">Save</button>
+          <button class="btn btn-danger" onclick="confirmDeleteZone('${z.ext}','${safeName}')">Delete</button>
+        </div>
+      </div></div>`;
+    box.appendChild(p);
+  });
+}
+function readHorns(root){
+  const ids=[], delays={};
+  root.querySelectorAll('input[data-sid]').forEach(cb=>{
+    if(cb.checked) ids.push(cb.dataset.sid);
+  });
+  root.querySelectorAll('input[data-delay]').forEach(inp=>{
+    const n=parseInt(inp.value,10);
+    if(!isNaN(n) && n>0) delays[inp.dataset.delay]=n;
+  });
+  return {speaker_ids:ids, delays};
+}
+async function saveZone(ext){
+  const panel=document.getElementById('zone-'+ext);
+  const name=document.getElementById('zn-name-'+ext).value.trim();
+  const newExt=document.getElementById('zn-ext-'+ext).value.trim();
+  const horns=readHorns(panel);
+  if(!name){ toast('Name required', false); return; }
+  const r=await fetch('/api/zones/'+ext,{method:'PATCH',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({name, ext:newExt, ...horns})});
+  const d=await r.json();
+  zoneNotice(d, 'Zone saved', 'Save failed');
+  if(d.ok){ openZone=d.ext||newExt||ext; loadZones(); }
+}
+function showAddZone(){
+  document.getElementById('addZonePanel').style.display='block';
+  document.getElementById('newZoneName').value='';
+  document.getElementById('newZoneExt').value=INVENTORY.next_ext||'';
+  addHornSel={};
+  const box=document.getElementById('newZoneHorns');
+  box.innerHTML='';
+  (INVENTORY.speakers||[]).forEach(sp=>{
+    const b=document.createElement('button');
+    b.type='button';
+    b.className='chip';
+    b.textContent=sp.name+(sp.online?'':' (off)');
+    b.onclick=()=>{ addHornSel[sp.id]=!addHornSel[sp.id]; b.classList.toggle('active', !!addHornSel[sp.id]); };
+    box.appendChild(b);
+  });
+}
+function hideAddZone(){ document.getElementById('addZonePanel').style.display='none'; }
+async function createZone(){
+  const name=document.getElementById('newZoneName').value.trim();
+  const ext=document.getElementById('newZoneExt').value.trim();
+  const speaker_ids=Object.keys(addHornSel).filter(id=>addHornSel[id]);
+  const delays={};
+  (INVENTORY.speakers||[]).forEach(sp=>{ if(speaker_ids.includes(sp.id) && sp.default_delay) delays[sp.id]=sp.default_delay; });
+  if(!name){ toast('Name required', false); return; }
+  const r=await fetch('/api/zones',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({name, ext, speaker_ids, delays})});
+  const d=await r.json();
+  zoneNotice(d, 'Zone created — SIP registering', 'Create failed');
+  if(d.ok){ hideAddZone(); openZone=d.ext||ext; loadZones(); }
+}
+function confirmDeleteZone(ext, name){
+  pendingDeleteExt=ext;
+  document.getElementById('deleteModalText').textContent=
+    `Delete ${name||ext} (${ext})? This removes the Talk user and third-party phone. Horns stay in Protect.`;
+  document.getElementById('deleteModal').classList.add('show');
+}
+async function doDeleteZone(){
+  const ext=pendingDeleteExt; pendingDeleteExt=null;
+  closeModal('deleteModal');
+  if(!ext) return;
+  const r=await fetch('/api/zones/'+ext,{method:'DELETE'});
+  const d=await r.json();
+  toast(d.ok?'Zone deleted':(d.error||'Delete failed'), d.ok);
+  if(d.ok) loadZones();
+}
+async function fetchConfig(){
+  const r=await fetch('/api/config'); const d=await r.json();
+  const map={cfg_site_name:'site_name', cfg_my_ip:'my_ip', cfg_unifi_host:'unifi_host',
+    cfg_unifi_username:'unifi_username', cfg_unifi_password:'unifi_password',
+    cfg_sip_server:'sip_server', cfg_sip_port:'sip_port', cfg_rtp_port:'rtp_port'};
+  Object.entries(map).forEach(([id,k])=>{ const el=document.getElementById(id); if(el) el.value=d[k]||''; });
+  cfg_unifi_password.placeholder=d.has_password?'Saved':'';
+  showConsoleHint(d);
+}
+function showConsoleHint(d){
+  document.getElementById('consoleBar').classList.toggle('show', !(d.unifi_host && d.unifi_username && d.has_password));
+}
+async function saveConfig(){
+  const body={
+    site_name: cfg_site_name.value, my_ip: cfg_my_ip.value,
+    unifi_host: cfg_unifi_host.value, unifi_username: cfg_unifi_username.value, unifi_password: cfg_unifi_password.value,
+    sip_server: cfg_sip_server.value, sip_port: cfg_sip_port.value, rtp_port: cfg_rtp_port.value
+  };
+  const r=await fetch('/api/config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  const d=await r.json();
+  toast(d.ok?'Configuration saved':'Save failed', d.ok);
+  if(d.ok) fetchConfig();
+}
+fetch('/api/config').then(r=>r.ok?r.json():null).then(d=>{ if(d) showConsoleHint(d); }).catch(()=>{});
+async function testUnifi(){
+  const el=document.getElementById('unifiTestResult');
+  el.textContent='Testing...';
+  const r=await fetch('/api/test-unifi',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+    host: cfg_unifi_host.value, username: cfg_unifi_username.value, password: cfg_unifi_password.value
+  })});
+  const d=await r.json();
+  el.textContent=d.ok?`OK — ${d.speakers||0} speakers, ${d.users||0} Talk users`:(d.error||'Failed');
+  el.style.color=d.ok?'var(--green)':'var(--red)';
+}
+let logLinesCache = [];
+let logLevelFilter = 'all';
+let logPaused = false;
+let logFollow = true;
+
+function logLevelOf(l){
+  const s=String(l).toLowerCase();
+  if(s.includes('error')||s.includes('fail')||s.includes('exception')) return 'err';
+  if(s.includes('warn')) return 'wrn';
+  if(s.includes('success')||s.includes('registered')||s.includes(' ok')) return 'ok';
+  return 'inf';
+}
+function logLineClass(level){
+  if(level==='err') return 'terminal-err';
+  if(level==='wrn') return 'terminal-warn';
+  if(level==='ok') return 'terminal-ok';
+  return '';
+}
+function syncLogPauseBtn(){
+  const btn=document.getElementById('logPauseBtn');
+  const term=document.getElementById('logsTerm');
+  if(btn) btn.textContent=logPaused?'Resume':'Pause';
+  if(term) term.dataset.term=logPaused?'paused':'live';
+}
+function renderLogLines(){
+  const box=document.getElementById('logBox');
+  const count=document.getElementById('logLineCount');
+  if(!box) return;
+  const nearBottom=(box.scrollHeight-box.scrollTop-box.clientHeight)<48;
+  const rows=logLinesCache.filter(row=>{
+    if(logLevelFilter==='all') return true;
+    if(logLevelFilter==='err') return row.level==='err';
+    if(logLevelFilter==='wrn') return row.level==='err'||row.level==='wrn';
+    return true;
+  });
+  if(count) count.textContent=String(rows.length);
+  box.innerHTML=rows.map(row=>{
+    const cls=logLineClass(row.level);
+    const lvl=(row.level||'inf').toUpperCase().slice(0,3);
+    return `<div class="terminal-line cols ${cls}"><span class="lvl ${row.level==='err'?'err':row.level==='wrn'?'wrn':row.level==='ok'?'ok':'inf'}">${lvl}</span><span class="src-col">BRG</span><span>${row.text}</span></div>`;
+  }).join('') || '<div class="terminal-line muted">No lines</div>';
+  if(logFollow && (nearBottom || logPaused===false)) box.scrollTop=box.scrollHeight;
+}
+async function fetchLogs(){
+  const r=await fetch('/api/logs');
+  if(r.status===401){ location.href='/login'; return; }
+  const d=await r.json();
+  logLinesCache=(d.lines||[]).map(l=>({ text:String(l), level:logLevelOf(l) }));
+  renderLogLines();
+}
+function stopLogLive(){
+  clearInterval(logInterval);
+  logInterval=null;
+}
+function startLogLive(){
+  logPaused=false;
+  syncLogPauseBtn();
+  fetchLogs();
+  stopLogLive();
+  logInterval=setInterval(()=>{ if(!logPaused) fetchLogs(); }, 3000);
+}
+function toggleLogPause(){
+  logPaused=!logPaused;
+  syncLogPauseBtn();
+  if(!logPaused) fetchLogs();
+}
+function clearLogView(){
+  logLinesCache=[];
+  renderLogLines();
+}
+function bindLogLevelChips(){
+  const wrap=document.getElementById('logLevelChips');
+  if(!wrap || wrap.dataset.bound) return;
+  wrap.dataset.bound='1';
+  wrap.querySelectorAll('[data-term-level]').forEach(chip=>{
+    chip.addEventListener('click', ()=>{
+      wrap.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+      chip.classList.add('active');
+      logLevelFilter=chip.getAttribute('data-term-level')||'all';
+      renderLogLines();
+    });
+  });
+}
+bindLogLevelChips();
+function confirmRestart(){ document.getElementById('restartModal').classList.add('show'); }
+function closeModal(id){ document.getElementById(id).classList.remove('show'); }
+async function doRestart(){
+  closeModal('restartModal');
+  const r=await fetch('/api/bridge/restart',{method:'POST'});
+  const d=await r.json();
+  toast(d.ok?'SIP bridge restarting':(d.error||'Restart failed'), d.ok);
+  setTimeout(fetchStatus, 2000);
+}
+
+(function(){
+  const meter=document.getElementById('level');
+  if(meter && !meter.children.length) meter.innerHTML='<i></i>'.repeat(16);
+})();
+showSection('talk');
+fetchStatus(); fetchHealth();
+document.addEventListener('keydown', e=>{
+  if(e.key==='Escape') toggleMenu(false);
+  onPttSpace(e);
+});
+document.addEventListener('keyup', onPttSpace);
+</script>
+<script src="/static/js/theme.js"></script>
+</body>
+</html>

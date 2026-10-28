@@ -1,0 +1,18 @@
+[Unit]
+Description=VoIP to Horns dashboard (behind nginx on 443)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=voiptohorns
+Group=voiptohorns
+WorkingDirectory=/opt/voiptohorns
+Environment=VTH_UI_HOST=127.0.0.1
+Environment=VTH_UI_PORT=5050
+ExecStart=/opt/voiptohorns/venv/bin/python3 -u dashboard/app.py
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,167 @@
+/* ==========================================================================
+   YesTechie Labs Style — design tokens
+   Canonical shared appliance chrome (light grid / tactical telemetry).
+
+   Extracted from:
+     - VoIP to Horns dashboard login.html + index.html
+     - Visitor Log Ghost / Kiosk login.html + style.css
+     - GITS tactical telemetry style guide
+
+   NOT the dark-header Bridge theme.
+   ========================================================================== */
+
+:root {
+  /* Base backgrounds & coordinate grid */
+  --bg-color: #f4f5f4;
+  --grid-color: #e2e6e3;
+  --grid-size: 40px;
+  --panel-bg: rgba(238, 242, 239, 0.85);
+  --panel-bg-solid: #eff2ef;
+  --panel-bg-hover: rgba(220, 226, 222, 0.95);
+
+  /* Borders & structural lines */
+  --border-main: #a3b1a6;
+  --border-light: #c2ccc4;
+  --border-dashed: #b4bfb7;
+
+  /* Typography */
+  --text-dark: #374151;
+  --text-muted: #6b7280;
+
+  /* Tactical accent palette (muted indicators) */
+  --accent-blue: #6388b0;
+  --accent-blue-trans: rgba(99, 136, 176, 0.2);
+  --accent-red: #db6554;
+  --accent-red-trans: rgba(219, 101, 84, 0.2);
+  --accent-green: #7a9f82;
+  --accent-green-trans: rgba(122, 159, 130, 0.2);
+  --accent-yellow: #c69c5e;
+
+  /* Monospace stack — SF Mono first, Space Mono fallback */
+  --font-mono: "SF Mono", "Space Mono", Consolas, "Liberation Mono", Menlo, monospace;
+
+  /* Layout */
+  --sidebar-width: 200px;
+
+  /* ------------------------------------------------------------------
+     0.3.0 · FND-01 token extension (accepted 2026-09-26)
+     Names only. Every value was already a kit or GITS literal.
+     ------------------------------------------------------------------ */
+
+  /* Translucent partner for yellow (blue / red / green already had one) */
+  --accent-yellow-trans: rgba(198, 156, 94, 0.2);
+
+  /* Tokenised literals the 0.2.1 kit hard-coded */
+  --surface-pane: rgba(255, 255, 255, 0.4);     /* .section.active */
+  --surface-input: rgba(0, 0, 0, 0.02);         /* .form-group input */
+  --surface-input-focus: #ffffff;
+  --surface-well: rgba(0, 0, 0, 0.03);          /* terminal, badge, power cell */
+  --surface-submit: #d4dde5;                    /* .btn-submit rest */
+  --scrim: rgba(0, 0, 0, 0.3);                  /* .modal-overlay */
+  --ink-on-accent: #ffffff;
+
+  /* Neutral lamp for idle / unknown */
+  --lamp-idle: var(--border-main);
+
+  /* Type scale — steps already used in the kit or the GITS guide */
+  --fs-micro: 8px;
+  --fs-xs: 9px;
+  --fs-sm: 10px;
+  --fs-base: 11px;
+  --fs-md: 12px;
+  --fs-lg: 13px;
+  --fs-xl: 18px;
+  --fs-xxl: 24px;
+
+  --track-tight: 0.5px;
+  --track-wide: 1px;
+  --track-xwide: 2px;
+
+  /* Spacing scale (4 / 6 / 8 / 12 / 15 / 20 / 25) */
+  --sp-1: 4px;
+  --sp-2: 6px;
+  --sp-3: 8px;
+  --sp-4: 12px;
+  --sp-5: 15px;
+  --sp-6: 20px;
+  --sp-7: 25px;
+
+  /* Motion — the three durations the kit already uses */
+  --t-fast: 0.15s;
+  --t-base: 0.2s;
+  --t-slow: 0.3s;
+
+  /* Z-index ladder (modal sits above the mobile drawer) */
+  --z-sticky: 40;
+  --z-sidebar: 50;
+  --z-drawer-mobile: 60;
+  --z-overlay: 70;
+  --z-palette: 80;
+  --z-toast: 100;
+
+  /* Hatch fill: unknown / no-data / locked. Never decoration. */
+  --hatch: repeating-linear-gradient(
+    -45deg,
+    transparent 0 4px,
+    rgba(163, 177, 166, 0.35) 4px 5px
+  );
+
+  /* 10px sub-grid inside graph wells */
+  --subgrid:
+    linear-gradient(rgba(226, 230, 227, 0.6) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(226, 230, 227, 0.6) 1px, transparent 1px);
+  --subgrid-size: 10px 10px;
+
+  /* Keyboard focus */
+  --focus-ring: 1px dashed var(--accent-blue);
+  --focus-offset: 2px;
+
+  /* Layout extras */
+  --rail-width: 56px;
+  --main-wide: 1280px;
+
+  /* ------------------------------------------------------------------
+     0.4.0 · chapter 14 token extension (accepted 2026-09-28)
+     Text-safe ink, chart bands, browser chrome colour.
+     ------------------------------------------------------------------ */
+
+  /* THM-08 · chart literals previously hard-coded in css/viz.css */
+  --accent-blue-faint: rgba(99, 136, 176, 0.12);   /* .viz .s-band */
+  --band-1: rgba(0, 0, 0, 0.1);                    /* .bullet-track .q1 */
+  --band-2: rgba(0, 0, 0, 0.06);                   /* .bullet-track .q2 */
+  --band-3: rgba(0, 0, 0, 0.03);                   /* .bullet-track .q3 */
+
+  /* THM-06 · text-safe accent ink (≥ 4.5:1 on --panel-bg-solid).
+     Accents stay the fill colours; use -ink only where an accent is text. */
+  --accent-blue-ink: #4b6f95;
+  --accent-red-ink: #c43d29;
+  --accent-green-ink: #54745b;
+  --accent-yellow-ink: #8a6631;
+  --text-muted-ink: #666d7a;
+
+  /* THM-04 · browser chrome colour (meta theme-color) */
+  --theme-meta: #eff2ef;
+}
+
+/* Aliases used across dashboard / kiosk source CSS */
+:root {
+  --bg: var(--bg-color);
+  --grid: var(--grid-color);
+  --panel: var(--panel-bg);
+  --panel-hover: var(--panel-bg-hover);
+  --panel-border: var(--border-main);
+  --border: var(--border-main);
+  --border-lt: var(--border-light);
+  --border-dash: var(--border-dashed);
+  --text: var(--text-dark);
+  --text-main: var(--text-dark);
+  --muted: var(--text-muted);
+  --blue: var(--accent-blue);
+  --blue-t: var(--accent-blue-trans);
+  --red: var(--accent-red);
+  --red-t: var(--accent-red-trans);
+  --green: var(--accent-green);
+  --green-t: var(--accent-green-trans);
+  --yellow: var(--accent-yellow);
+  --yellow-t: var(--accent-yellow-trans);
+}
