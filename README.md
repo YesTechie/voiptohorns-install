@@ -6,15 +6,15 @@ VoIP to Horns runs on a Raspberry Pi on your network. You create your own paging
 
 ## Features
 
-Requires UniFi Talk and UniFi Protect with AI Horns.
+Requires UniFi Talk and UniFi Protect with AI Horns or AI Speakers.
 
-- **Page from any Talk phone.** Each zone has its own UniFi Talk extension. Dial it and your voice plays live on that zone's AI Horns.
+- **Page from any Talk phone.** Each zone has its own UniFi Talk extension. Dial it and your voice plays live on that zone's horns and speakers.
 - **Zones in the dashboard.** Create a zone and the Talk user and phone are set up for you. Rename it, change its extension, pick its horns or delete it. The dashboard only changes zones it created.
 - **Per-horn delay.** Set a delay on each horn so all the horns in a zone stay in sync.
 - **Hold to talk in the browser.** Talk through your computer or phone mic by holding the button or the Space bar. The installer sets up HTTPS and a certificate you can install on a Mac or iPhone.
-- **Text-to-speech.** Type up to 120 characters and they're read out on the zone's horns.
+- **Text-to-speech.** Type up to 120 characters and they're read out on the zone's horns and speakers.
 - **Test announcement.** Play a stored clip to a zone with one click to check the horns without a mic.
-- **Automatic horn setup.** Horns added to a zone are switched into talk mode for you.
+- **Automatic speaker setup.** Horns and speakers added to a zone are switched into talk mode for you.
 - **Status and logs.** See the console connection, zones, horns and bridge status, follow a live log, and restart the bridge with one button.
 - **Secure dashboard.** It's protected by a login, and you connect your UniFi console from inside the dashboard.
 - **Light, dark and system themes.**
